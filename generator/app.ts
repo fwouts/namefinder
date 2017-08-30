@@ -18,7 +18,11 @@ function checkRandomName(): Promise<any> {
     isTwitterPageAvailable(name)
   ])
     .then(availabilityList => {
-      if (availabilityList[0] && availabilityList[1] && availabilityList[2]) {
+      let available = availabilityList.reduce(
+        (accumulator, currentValue) => accumulator && currentValue,
+        true
+      );
+      if (available) {
         console.log(chalk.green(name + ".io"));
       }
     })
