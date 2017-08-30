@@ -11,7 +11,7 @@ function checkInfinitely() {
 }
 
 function checkRandomName(): Promise<any> {
-  let name = randomWords(2).join("");
+  let name = randomWords({ min: 1, max: 2 }).join("");
   return Promise.all([
     isDomainAvailable(name, "io"),
     isFacebookPageAvailable(name),
