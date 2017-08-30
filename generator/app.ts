@@ -1,4 +1,5 @@
 import * as chalk from "chalk";
+import * as fs from "fs";
 import * as randomWords from "random-words";
 
 import { exec } from "child_process";
@@ -23,7 +24,9 @@ function checkRandomName(): Promise<any> {
         true
       );
       if (available) {
-        console.log(chalk.green(name + ".io"));
+        let domainName = name + ".io";
+        console.log(chalk.green(domainName));
+        fs.appendFileSync("domains.txt", domainName + "\n");
       }
     })
     .catch(e => {
