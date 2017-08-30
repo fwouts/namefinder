@@ -6,13 +6,8 @@ import fetch from "node-fetch";
 
 checkInfinitely();
 
-function checkInfinitely(count = 0) {
-  if (count > 0 && count % 100 == 0) {
-    console.log("Checked " + count + " domains");
-  }
-  checkRandomName().then(() => {
-    checkInfinitely(count + 1);
-  });
+function checkInfinitely() {
+  checkRandomName().then(checkInfinitely);
 }
 
 function checkRandomName(): Promise<any> {
