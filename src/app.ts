@@ -25,7 +25,7 @@ function checkInfinitely() {
     });
 }
 
-function checkRandomName(): Promise<any> {
+function checkRandomName(): Promise<void> {
   return getWords().then(words => {
     let name = pickWords(words, 1, 2).join("");
     return Promise.all([
