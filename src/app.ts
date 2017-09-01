@@ -1,4 +1,5 @@
 import * as chalk from "chalk";
+import * as dns from "dns";
 import * as fs from "fs";
 import * as randomWords from "random-words";
 
@@ -44,12 +45,25 @@ function checkRandomName(): Promise<any> {
 }
 
 function isDomainAvailable(name: string, extension: string): Promise<boolean> {
+  let domain = name + "." + extension;
   return new Promise<boolean>((resolve, reject) => {
-    exec(`whois ${name}.${extension}`, (error, stdout, stderr) => {
-      if (error) {
-        reject(error);
+    dns.lookup(domain, (err, address, family) => {
+      if (!err) {
+        // DNS lookup successful, so the domain is definitely not available.
+        resolve(false);
+      } else {
+        // DNS lookup failed, so the domain could be available. Check whois.
+        exec(
+          `whois ${domain}`,
+          { timeout: REQUEST_TIMEOUT_MILLIS },
+          (error, stdout, stderr) => {
+            if (error) {
+              reject(error);
+            }
+            resolve(stdout.startsWith("NOT FOUND\n"));
+          }
+        );
       }
-      resolve(stdout.startsWith("NOT FOUND\n"));
     });
   });
 }
