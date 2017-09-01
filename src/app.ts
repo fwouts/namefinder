@@ -59,8 +59,9 @@ function isDomainAvailable(name: string, extension: string): Promise<boolean> {
           (error, stdout, stderr) => {
             if (error) {
               reject(error);
+            } else {
+              resolve(stdout.startsWith("NOT FOUND\n"));
             }
-            resolve(stdout.startsWith("NOT FOUND\n"));
           }
         );
       }
