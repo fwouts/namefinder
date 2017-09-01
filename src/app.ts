@@ -38,9 +38,16 @@ function checkRandomName(): Promise<void> {
         true
       );
       if (available) {
-        let domainName = name + ".io";
-        console.log(chalk.green(domainName));
-        fs.appendFileSync("domains.txt", domainName + "\n");
+        return isDomainAvailable(name, "com").then(dotComAvailableToo => {
+          let domainName = name + ".io";
+          if (dotComAvailableToo) {
+            domainName += " + .com";
+          }
+          console.log(chalk.green(domainName));
+          fs.appendFileSync("domains.txt", domainName + "\n");
+        });
+      } else {
+        return;
       }
     });
   });
@@ -93,7 +100,10 @@ function isDomainAvailable(name: string, extension: string): Promise<boolean> {
             if (error) {
               reject(error);
             } else {
-              resolve(stdout.startsWith("NOT FOUND\n"));
+              resolve(
+                stdout.startsWith("NOT FOUND\n") ||
+                  stdout.startsWith("No match for ")
+              );
             }
           }
         );
