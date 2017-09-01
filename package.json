@@ -8,9 +8,9 @@
     "@types/node": "^8.0.26",
     "@types/node-fetch": "^1.6.7",
     "chalk": "^2.1.0",
+    "common-english-words": "^0.0.6",
     "node-fetch": "^1.7.2",
     "nodemon": "^1.11.0",
-    "random-words": "^0.0.1",
     "ts-node": "^3.3.0",
     "typescript": "^2.4.2"
   },

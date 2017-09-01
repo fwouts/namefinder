@@ -1,7 +1,7 @@
 import * as chalk from "chalk";
+import * as commonWords from "common-english-words";
 import * as dns from "dns";
 import * as fs from "fs";
-import * as randomWords from "random-words";
 
 import { exec } from "child_process";
 import fetch from "node-fetch";
@@ -26,22 +26,55 @@ function checkInfinitely() {
 }
 
 function checkRandomName(): Promise<any> {
-  let name = randomWords({ min: 1, max: 2 }).join("");
-  return Promise.all([
-    isDomainAvailable(name, "io"),
-    isFacebookPageAvailable(name),
-    isTwitterPageAvailable(name)
-  ]).then(availabilityList => {
-    let available = availabilityList.reduce(
-      (accumulator, currentValue) => accumulator && currentValue,
-      true
-    );
-    if (available) {
-      let domainName = name + ".io";
-      console.log(chalk.green(domainName));
-      fs.appendFileSync("domains.txt", domainName + "\n");
-    }
+  return getWords().then(words => {
+    let name = pickWords(words, 1, 2).join("");
+    return Promise.all([
+      isDomainAvailable(name, "io"),
+      isFacebookPageAvailable(name),
+      isTwitterPageAvailable(name)
+    ]).then(availabilityList => {
+      let available = availabilityList.reduce(
+        (accumulator, currentValue) => accumulator && currentValue,
+        true
+      );
+      if (available) {
+        let domainName = name + ".io";
+        console.log(chalk.green(domainName));
+        fs.appendFileSync("domains.txt", domainName + "\n");
+      }
+    });
   });
+}
+
+function getWords(): Promise<string[]> {
+  return new Promise<string[]>((resolve, reject) => {
+    commonWords.getWords((err, words) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(words);
+      }
+    });
+  });
+}
+
+function pickWords(
+  words: string[],
+  minCount: number,
+  maxCount: number
+): string[] {
+  // Pick a number between minCount and maxCount.
+  let count = minCount + Math.round(Math.random() * (maxCount - minCount));
+  let pickedWords = [];
+  for (let i = 0; i < count; i++) {
+    // Pick a random word from the list (we don't mind picking it twice).
+    let picked: string;
+    do {
+      picked = words[Math.floor(Math.random() * words.length)];
+    } while (!picked.match(/^[a-zA-Z]+$/)); // Don't allow words like "I'm" or "ma'am"
+    pickedWords.push(picked);
+  }
+  return pickedWords;
 }
 
 function isDomainAvailable(name: string, extension: string): Promise<boolean> {
