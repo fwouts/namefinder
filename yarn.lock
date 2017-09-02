@@ -207,10 +207,6 @@ combined-stream@^1.0.5, combined-stream@~1.0.5:
   dependencies:
     delayed-stream "~1.0.0"
 
-common-english-words@^0.0.6:
-  version "0.0.6"
-  resolved "https://registry.yarnpkg.com/common-english-words/-/common-english-words-0.0.6.tgz#a2a6cee676f103010e285ad319c27d1c342638d5"
-
 concat-map@0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/concat-map/-/concat-map-0.0.1.tgz#d8a96bd77fd68df7793a73036a3ba0d5405d477b"
