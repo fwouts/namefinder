@@ -7,6 +7,9 @@ import fetch from "node-fetch";
 
 const REQUEST_TIMEOUT_MILLIS = 2000;
 const DEFAULT_ERROR_BACKOFF_SECONDS = 2;
+const MIN_WORD_COUNT = 1;
+const MAX_WORD_COUNT = 2;
+const MAX_LENGTH = 10;
 const WORDS = fs.readFileSync("words.txt", "utf8").split("\n");
 
 let errorBackoffSeconds = DEFAULT_ERROR_BACKOFF_SECONDS;
@@ -27,7 +30,7 @@ function checkInfinitely() {
 }
 
 function checkRandomName(): Promise<void> {
-  let name = pickWords(1, 2).join("");
+  let name = inventName();
   return Promise.all([
     isDomainAvailable(name, "io"),
     isFacebookPageAvailable(name),
@@ -50,6 +53,14 @@ function checkRandomName(): Promise<void> {
       return;
     }
   });
+}
+
+function inventName(): string {
+  let name: string;
+  do {
+    name = pickWords(MIN_WORD_COUNT, MAX_WORD_COUNT).join("");
+  } while (name.length > MAX_LENGTH);
+  return name;
 }
 
 function pickWords(minCount: number, maxCount: number): string[] {
