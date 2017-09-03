@@ -15,44 +15,38 @@ const WORDS = fs.readFileSync("words.txt", "utf8").split("\n");
 let errorBackoffSeconds = DEFAULT_ERROR_BACKOFF_SECONDS;
 checkInfinitely();
 
-function checkInfinitely() {
-  checkRandomName()
-    .then(() => {
-      errorBackoffSeconds = DEFAULT_ERROR_BACKOFF_SECONDS;
-      checkInfinitely();
-    })
-    .catch(error => {
-      console.error(error);
-      console.log(`Retrying in ${errorBackoffSeconds} seconds...`);
-      setTimeout(checkInfinitely, errorBackoffSeconds * 1000);
-      errorBackoffSeconds *= 2;
-    });
+async function checkInfinitely() {
+  try {
+    await checkRandomName();
+    checkInfinitely();
+  } catch (error) {
+    console.error(error);
+    console.log(`Retrying in ${errorBackoffSeconds} seconds...`);
+    setTimeout(checkInfinitely, errorBackoffSeconds * 1000);
+    errorBackoffSeconds *= 2;
+  }
 }
 
-function checkRandomName(): Promise<void> {
+async function checkRandomName(): Promise<void> {
   let name = inventName();
-  return Promise.all([
+  let availabilityList = await Promise.all([
     isDomainAvailable(name, "io"),
     isFacebookPageAvailable(name),
     isTwitterPageAvailable(name)
-  ]).then(availabilityList => {
-    let available = availabilityList.reduce(
-      (accumulator, currentValue) => accumulator && currentValue,
-      true
-    );
-    if (available) {
-      return isDomainAvailable(name, "com").then(dotComAvailableToo => {
-        let domainName = name + ".io";
-        if (dotComAvailableToo) {
-          domainName += " + .com";
-        }
-        console.log(chalk.green(domainName));
-        fs.appendFileSync("domains.txt", domainName + "\n");
-      });
-    } else {
-      return;
+  ]);
+  let available = availabilityList.reduce(
+    (accumulator, currentValue) => accumulator && currentValue,
+    true
+  );
+  if (available) {
+    let dotComAvailableToo = await isDomainAvailable(name, "com");
+    let domainName = name + ".io";
+    if (dotComAvailableToo) {
+      domainName += " + .com";
     }
-  });
+    console.log(chalk.green(domainName));
+    fs.appendFileSync("domains.txt", domainName + "\n");
+  }
 }
 
 function inventName(): string {
@@ -106,18 +100,16 @@ function isDomainAvailable(name: string, extension: string): Promise<boolean> {
   });
 }
 
-function isFacebookPageAvailable(name: string): Promise<boolean> {
-  return fetch(`https://www.facebook.com/${name}`, {
+async function isFacebookPageAvailable(name: string): Promise<boolean> {
+  let response = await fetch(`https://www.facebook.com/${name}`, {
     timeout: REQUEST_TIMEOUT_MILLIS
-  }).then(response => {
-    return response.status == 404;
   });
+  return response.status == 404;
 }
 
-function isTwitterPageAvailable(name: string): Promise<boolean> {
-  return fetch(`https://www.twitter.com/${name}`, {
+async function isTwitterPageAvailable(name: string): Promise<boolean> {
+  let response = await fetch(`https://www.twitter.com/${name}`, {
     timeout: REQUEST_TIMEOUT_MILLIS
-  }).then(response => {
-    return response.status == 404;
   });
+  return response.status == 404;
 }
