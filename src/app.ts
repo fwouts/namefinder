@@ -12,6 +12,8 @@ const MAX_WORD_COUNT = 2;
 const MAX_LENGTH = 10;
 const WORDS = fs.readFileSync("words.txt", "utf8").split("\n");
 const EXTENSION = "io";
+const CHECK_FACEBOOK = false;
+const CHECK_TWITTER = false;
 
 let errorBackoffSeconds = DEFAULT_ERROR_BACKOFF_SECONDS;
 checkInfinitely();
@@ -33,8 +35,8 @@ async function checkRandomName(): Promise<void> {
   let name = inventName();
   let availabilityList = await Promise.all([
     isDomainAvailable(name, EXTENSION),
-    isFacebookPageAvailable(name),
-    isTwitterPageAvailable(name)
+    CHECK_FACEBOOK ? isFacebookPageAvailable(name) : Promise.resolve(true),
+    CHECK_TWITTER ? isTwitterPageAvailable(name) : Promise.resolve(true)
   ]);
   let available = availabilityList.reduce(
     (accumulator, currentValue) => accumulator && currentValue,
