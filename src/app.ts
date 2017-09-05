@@ -86,8 +86,8 @@ function isDomainAvailable(name: string, extension: string): Promise<boolean> {
           `whois ${domain}`,
           { timeout: REQUEST_TIMEOUT_MILLIS },
           (error, stdout, stderr) => {
-            if (error) {
-              reject(error);
+            if (error || stdout.startsWith("WHOIS LIMIT EXCEEDED")) {
+              reject(error || new Error("WHOIS limit exceeded."));
             } else {
               resolve(
                 stdout.startsWith("NOT FOUND\n") ||
