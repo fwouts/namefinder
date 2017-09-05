@@ -11,6 +11,7 @@ const MIN_WORD_COUNT = 1;
 const MAX_WORD_COUNT = 2;
 const MAX_LENGTH = 10;
 const WORDS = fs.readFileSync("words.txt", "utf8").split("\n");
+const EXTENSION = "io";
 
 let errorBackoffSeconds = DEFAULT_ERROR_BACKOFF_SECONDS;
 checkInfinitely();
@@ -30,7 +31,7 @@ async function checkInfinitely() {
 async function checkRandomName(): Promise<void> {
   let name = inventName();
   let availabilityList = await Promise.all([
-    isDomainAvailable(name, "io"),
+    isDomainAvailable(name, EXTENSION),
     isFacebookPageAvailable(name),
     isTwitterPageAvailable(name)
   ]);
@@ -40,7 +41,7 @@ async function checkRandomName(): Promise<void> {
   );
   if (available) {
     let dotComAvailableToo = await isDomainAvailable(name, "com");
-    let domainName = name + ".io";
+    let domainName = `${name}.${EXTENSION}`;
     if (dotComAvailableToo) {
       domainName += " + .com";
     }
