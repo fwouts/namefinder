@@ -20,6 +20,7 @@ async function checkInfinitely() {
   try {
     await checkRandomName();
     checkInfinitely();
+    errorBackoffSeconds = DEFAULT_ERROR_BACKOFF_SECONDS;
   } catch (error) {
     console.error(error);
     console.log(`Retrying in ${errorBackoffSeconds} seconds...`);
